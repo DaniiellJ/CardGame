@@ -1,7 +1,6 @@
 # CardGame
 
 Funcionalidades Principais
-Modo Gráfico (Tkinter)
 
 Interface visual com cronômetro e pontuação
 
