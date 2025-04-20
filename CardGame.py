@@ -60,17 +60,13 @@ class JogoCartas:
             "3. Selecione a próxima carta correta para cada posição",
             "4. Acertos: +10 pontos | Erros: -15 pontos",
             "5. O cronômetro começa quando você inicia o jogo!",
-            "\nDica: Cartas já ordenadas aparecem em verde!"
+            "\nDica: Cartas ordenadas aparecem em verde!"
         ]
         
         for texto in regras:
-            ttk.Label(self.tela_inicial, 
-                    text=texto,
-                    font=('Arial', 12)).pack(pady=2)
+            ttk.Label(self.tela_inicial, text=texto, font=('Arial', 12)).pack(pady=2)
         
-        ttk.Button(self.tela_inicial, 
-                 text="Iniciar Jogo",
-                 command=self.iniciar_jogo).pack(pady=30)
+        ttk.Button(self.tela_inicial, text="Iniciar Jogo", command=self.iniciar_jogo).pack(pady=30)
 
     def iniciar_jogo(self):
         self.tela_inicial.destroy()
@@ -82,8 +78,6 @@ class JogoCartas:
         self.principal.pack(expand=True, fill='both', padx=20, pady=10)
         
         self.criar_painel_superior()
-        
-        #mostrar o baralho
         self.area_baralho = ttk.Frame(self.principal)
         self.area_baralho.pack(expand=True, fill='both', pady=10)
         
@@ -91,15 +85,20 @@ class JogoCartas:
         self.label_status.pack(pady=5)
         
         self.area_selecao = ttk.Labelframe(self.principal, 
-                                         text="Selecione a Próxima Carta",
-                                         padding=10)
+             text="Selecione a Próxima Carta", padding=10)
         self.area_selecao.pack(fill='both', pady=10)
 
     def criar_painel_superior(self):
         painel_superior = ttk.Frame(self.principal)
         painel_superior.pack(fill='x', pady=5)
+
+        botoes_frame = ttk.Frame(painel_superior)
+        botoes_frame.pack(side='right')
+
+        #restart
+        ttk.Button(botoes_frame, text="Reiniciar", command=self.novo_jogo).pack(side='left', padx=5)
         
-        #painel esquerdo
+        #pontuação e passo
         painel_esquerda = ttk.Frame(painel_superior)
         painel_esquerda.pack(side='left', expand=True)
         
@@ -111,28 +110,29 @@ class JogoCartas:
         self.label_passo = ttk.Label(painel_esquerda, text="0", font=('Arial', 12, 'bold'))
         self.label_passo.pack(side='left')
         
-        #painel direito (tempo)
+        #tempo e ajuda
         painel_direita = ttk.Frame(painel_superior)
         painel_direita.pack(side='right')
         
         ttk.Label(painel_direita, text="Tempo:", style='Tempo.TLabel').pack(side='left')
         self.label_tempo = ttk.Label(painel_direita, text="00:00", font=('Arial', 12, 'bold'))
-        self.label_tempo.pack(side='left')
+        self.label_tempo.pack(side='left', padx=10)
         
-        ttk.Button(painel_superior, 
-                 text="Ajuda",
-                 command=self.mostrar_ajuda).pack(side='right', padx=10)
+        ttk.Button(botoes_frame, text="Ajuda", command=self.mostrar_ajuda).pack(side='left', padx=5)
 
     def novo_jogo(self):
-        #cria e embaralha o baralho
+        #novo jogo (zera o cronometro e embaralha novamente)
+        self.parar_cronometro()
         self.baralho = [(valor, naipe) for valor in range(1, 14) for naipe in range(4)]
         random.shuffle(self.baralho)
         
         self.pontuacao = 100
         self.passo_atual = 0
         self.tempo_decorrido = 0
+        self.label_status.config(text="")
         self.atualizar_interface()
         self.iniciar_cronometro()
+        self.label_tempo.config(text="00:00")
 
     def iniciar_cronometro(self):
         self.tempo_inicio = time.time()
@@ -177,19 +177,18 @@ class JogoCartas:
         self.label_passo.config(text=str(self.passo_atual + 1))
         
         #baralho atual
-        for indice, carta in enumerate(self.baralho):
+        for indice in range(self.passo_atual):
+            carta = self.baralho[indice]
             linha = indice // self.colunas_baralho
             coluna = indice % self.colunas_baralho
             
             frame = ttk.Frame(self.area_baralho, padding=2)
             frame.grid(row=linha, column=coluna, padx=2, pady=2)
             
-            cor_fundo = '#A3BE8C' if indice < self.passo_atual else '#ECEFF4'
-            
             ttk.Label(frame, 
                     text=self.converter_carta(carta),
                     font=('Arial', 10),
-                    background=cor_fundo,
+                    background='#A3BE8C',
                     width=5,
                     anchor='center').pack()
         
